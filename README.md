@@ -5,7 +5,7 @@ It reads information from the Linux `/proc` filesystem and displays running proc
 
 This project was mainly built as a learning exercise to explore how Linux exposes system and process information through `/proc`, and to better understand how processes work internally.
 
-A short demo of the program can be found here:
+## A short demo of the program can be found here:
 
 <a href="https://youtu.be/XXDCgqSgd-Y">
   <img src="Who-Ate-My-CPU.png" width="300">
