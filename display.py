@@ -30,20 +30,24 @@ def get_key():
 
 
 def display_processes(processes):
-    print("PID\tNAME\t\t\tMEMORY\tCPU")
-    print("--------------------------------------------------")
+
+    print(f"{'PID':<8}{'NAME':<35}{'MEMORY(MB)':<15}{'CPU(%)':<10}")
+    print("-" * 70)
 
     for proc in processes[:20]:
+        name_display = proc["name"][:33]  # truncate if name is too long
         print(
-            f"{proc['pid']:<7}{proc['name']:<20}{proc['memory']:<10.2f}{proc['cpu_usage']:.2f}"
+            f"{proc['pid']:<8}{name_display:<35}{proc['memory']:<15.2f}{proc['cpu_usage']:<10.2f}"
         )
 
 
 def display_grouped(processes):
-    print("NAME\t\t\tINSTANCES\tMEMORY\tCPU")
-    print("--------------------------------------------------")
+
+    print(f"{'NAME':<35}{'INSTANCES':<12}{'MEMORY(MB)':<15}{'CPU(%)':<10}")
+    print("-" * 75)
 
     for proc in processes[:20]:
+        name_display = proc["name"][:33]  # truncate if name is too long
         print(
-            f"{proc['name']:<20}{proc['count']:<10}{proc['memory']:<10.2f}{proc['cpu_usage']:.2f}"
+            f"{name_display:<35}{proc['count']:<12}{proc['memory']:<15.2f}{proc['cpu_usage']:<10.2f}"
         )
