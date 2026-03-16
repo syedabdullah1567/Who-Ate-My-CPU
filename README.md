@@ -28,10 +28,11 @@ This project was mainly built as a learning exercise to explore how Linux expose
 
 Clone the repository and run the program:
 
-git clone <repo-url>
+git clone "https://github.com/syedabdullah1567/Who-Ate-My-CPU"
+
 cd Who-Ate-My-CPU
+
 python3 main.py
-Demo
 
 ## Learning Outcomes
 
