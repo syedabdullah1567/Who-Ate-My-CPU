@@ -5,6 +5,10 @@ It reads information from the Linux `/proc` filesystem and displays running proc
 
 This project was mainly built as a learning exercise to explore how Linux exposes system and process information through `/proc`, and to better understand how processes work internally.
 
+A short demo of the program can be found here:
+
+[![Gameplay Video](Who-Ate-My-CPU.png)](https://youtu.be/XXDCgqSgd-Y)
+
 ## Features
 
 - Display running processes with **PID, name, memory usage, and CPU usage**
@@ -22,17 +26,12 @@ This project was mainly built as a learning exercise to explore how Linux expose
 
 Clone the repository and run the program:
 
-```bash
 git clone <repo-url>
 cd Who-Ate-My-CPU
 python3 main.py
 Demo
 
-A short demo of the program can be found here:
-
-https://youtu.be/XXDCgqSgd-Y
-
-Learning Outcomes
+## Learning Outcomes
 
 The goal of this project was not to build a full system monitor, but to better understand some fundamentals of Linux.
 
