@@ -1,45 +1,51 @@
 # Who-Ate-My-CPU
-A terminal-based Python process manager that displays running processes,
-aggregates them by name, shows memory and CPU usage, and allows killing processes.
 
-Features
+Who-Ate-My-CPU is a simple terminal-based process manager written in Python.  
+It reads information from the Linux `/proc` filesystem and displays running processes along with their memory and CPU usage. It also allows grouping processes and terminating them directly from the terminal.
 
-List clearly:
+This project was mainly built as a learning exercise to explore how Linux exposes system and process information through `/proc`, and to better understand how processes work internally.
 
-Display processes with PID, memory, CPU.
+## Features
 
-Dynamic refreshing.
+- Display running processes with **PID, name, memory usage, and CPU usage**
+- **Dynamic refreshing** of system statistics
+- **Grouped mode** to aggregate processes with the same name
+- **Sort processes** based on memory usage
+- **Terminate processes** by PID or by name
 
-Grouped mode to aggregate processes by name.
+## Requirements
 
-Kill processes via PID or name.
+- Python 3
+- Linux system (the program relies on the `/proc` filesystem)
 
-Sort processes by memory/CPU usage.
+## How to Run
 
-Requirements
+Clone the repository and run the program:
 
-Python 3.x
-
-Linux system (uses /proc filesystem)
-
-How to Run
-
-Include step-by-step commands:
-
+```bash
 git clone <repo-url>
 cd Who-Ate-My-CPU
 python3 main.py
+Demo
 
-Demo / Screenshots
+A short demo of the program can be found here:
 
-Include your video or screenshots in GitHub README using:
+https://youtu.be/XXDCgqSgd-Y
 
-![Demo](Who-Ate-My-CPU.mp4)  # or .mp4 if using GitHub Pages link
+Learning Outcomes
 
-Notes / Learning Outcomes
+The goal of this project was not to build a full system monitor, but to better understand some fundamentals of Linux.
 
-Short paragraph on what you learned:
+While working on it, I explored:
 
-Understanding /proc directory, process management, CPU/memory usage.
+The structure and purpose of the /proc directory
 
-Reading files in Linux and interacting with processes in Python.
+How Linux exposes process information through files like status, stat, and meminfo
+
+How CPU usage can be calculated using system ticks
+
+How memory usage is tracked for individual processes
+
+Interacting with running processes using signals
+
+Overall, this project helped me get a clearer understanding of how Linux manages processes and exposes system information through the filesystem.
