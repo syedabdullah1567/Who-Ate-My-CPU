@@ -1,10 +1,23 @@
 from pathlib import Path
+import time
 
 
 def read_total_cpu_ticks():
     with open("/proc/stat") as f:
         line = f.readline()
         return sum(int(x) for x in line.split()[1:])
+
+
+def read_cpu_times():
+    with open("/proc/stat") as f:
+        fields = f.readline().split()[1:]
+
+    fields = list(map(int, fields))
+
+    idle = fields[3] + fields[4]
+    total = sum(fields)
+
+    return idle, total
 
 
 def read_proc_ticks(pid):
@@ -48,3 +61,37 @@ def read_system_memory():
     used = total - available
 
     return total, used
+
+
+def createProcesses():
+
+    processes = []
+
+    total_ticks1 = read_total_cpu_ticks()
+
+    for entry in Path("/proc").iterdir():
+        if entry.is_dir() and entry.name.isdigit():
+            pid = entry.name
+            name, state, memory = read_proc_status(pid)
+            proc_ticks1 = read_proc_ticks(pid)
+            processes.append(
+                {
+                    "pid": pid,
+                    "name": name,
+                    "state": state,
+                    "memory": memory,
+                    "proc_ticks1": proc_ticks1,
+                }
+            )
+
+    time.sleep(1)
+
+    total_ticks2 = read_total_cpu_ticks()
+
+    for proc in processes:
+        proc_ticks2 = read_proc_ticks(proc["pid"])
+        proc_delta = proc_ticks2 - proc["proc_ticks1"]
+        total_delta = total_ticks2 - total_ticks1
+        proc["cpu_usage"] = (proc_delta / total_delta) * 100
+
+    return processes

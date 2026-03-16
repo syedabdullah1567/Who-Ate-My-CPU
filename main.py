@@ -1,16 +1,29 @@
 import sys
 import os
+import signal
 import select
-from pathlib import Path
-import time
+import termios
+import tty
 
-from processing import (
-    read_total_cpu_ticks,
-    read_proc_ticks,
-    read_proc_status,
-    read_system_memory,
-)
+from processing import createProcesses, read_system_memory, read_cpu_times
+
 from display import groupedProcesses, display_grouped, display_processes
+
+
+def setup_terminal():
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+
+    tty.setcbreak(fd)
+    new_settings = termios.tcgetattr(fd)
+    new_settings[3] = new_settings[3] & ~termios.ECHO
+    termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
+
+    return old_settings
+
+
+def restore_terminal(old_settings):
+    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_settings)
 
 
 def get_key():
@@ -22,6 +35,7 @@ def get_key():
 def main():
 
     isGrouped = False
+    isSortMem = True
 
     while True:
         key = get_key()
@@ -29,42 +43,53 @@ def main():
         if key:
             if key.lower() == "g":
                 isGrouped = not isGrouped
+            elif key.lower() == "q":
+                break
+            elif key.lower() == "m":
+                isSortMem = True
+            elif key.lower() == "c":
+                isSortMem = False
+            elif key.lower() == "k":
+                if isGrouped:
+                    procName = input("Enter the name of process to kill: ")
+                    processes = createProcesses()
+                    for proc in processes:
+                        if proc["name"] == procName:
+                            os.kill(int(proc["pid"]), signal.SIGTERM)
 
-        processes = []
-        total_ticks1 = read_total_cpu_ticks()
+                else:
+                    pid = int(input("Enter pid to terminate: "))
+                    try:
+                        os.kill(pid, signal.SIGTERM)
+                        print(f"Signal SIGTERM sent to process {pid}")
+                    except ProcessLookupError:
+                        print(f"Process {pid} not found")
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
 
         totalCPU = 0
 
-        for entry in Path("/proc").iterdir():
-            if entry.is_dir() and entry.name.isdigit():
-                pid = entry.name
-                name, state, memory = read_proc_status(pid)
-                proc_ticks1 = read_proc_ticks(pid)
-                processes.append(
-                    {
-                        "pid": pid,
-                        "name": name,
-                        "state": state,
-                        "memory": memory,
-                        "proc_ticks1": proc_ticks1,
-                    }
-                )
+        idle1, total1 = read_cpu_times()
 
-        time.sleep(1)
+        processes = createProcesses()
 
-        total_ticks2 = read_total_cpu_ticks()
-
-        for proc in processes:
-            proc_ticks2 = read_proc_ticks(proc["pid"])
-            proc_delta = proc_ticks2 - proc["proc_ticks1"]
-            total_delta = total_ticks2 - total_ticks1
-            proc["cpu_usage"] = (proc_delta / total_delta) * 100
-            totalCPU += proc["cpu_usage"]
+        idle2, total2 = read_cpu_times()
+        idle_delta = idle2 - idle1
+        total_delta = total2 - total1
+        if total_delta > 0:
+            totalCPU = (1 - idle_delta / total_delta) * 100
+        else:
+            totalCPU = 0
 
         if isGrouped:
             processes = groupedProcesses(processes)
 
-        processes.sort(key=lambda x: x["memory"], reverse=True)
+        sort_key = ""
+        if isSortMem:
+            sort_key = "memory"
+        else:
+            sort_key = "cpu_usage"
+        processes.sort(key=lambda x: x[sort_key], reverse=True)
 
         totalMem, usedMem = read_system_memory()
 
@@ -73,9 +98,14 @@ def main():
         print(
             "*                  Who-Ate-My-CPU Resource Manager                    *\n\n"
         )
+
+        print(
+            "Commands (Press enter after writing command):\ng → toggle grouped mode\nk → kill process\nq → quit quitting\nm → sort by memory\nc → sort by cpu\n"
+        )
+
         print("Total memory: " + str(totalMem) + "MB\n")
         print("Used memory: " + str(usedMem) + "MB\n")
-        print("Total CPU usage: " + str(int(totalCPU)) + "\n\n")
+        print(f"Total CPU usage: {totalCPU:.2f}%\n\n")
 
         if isGrouped:
             display_grouped(processes)
@@ -84,4 +114,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    old_settings = setup_terminal()
+    try:
+        main()
+    finally:
+        restore_terminal(old_settings)
