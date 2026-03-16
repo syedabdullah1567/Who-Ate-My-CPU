@@ -8,7 +8,7 @@ This project was mainly built as a learning exercise to explore how Linux expose
 A short demo of the program can be found here:
 
 <a href="https://youtu.be/XXDCgqSgd-Y">
-  <img src="Who-Ate-My-CPU.png" width="500">
+  <img src="Who-Ate-My-CPU.png" width="300">
 </a>
 
 ## Features
