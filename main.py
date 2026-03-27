@@ -2,28 +2,10 @@ import sys
 import os
 import signal
 import select
-import termios
-import tty
 
 from processing import createProcesses, read_system_memory, read_cpu_times
 
 from display import groupedProcesses, display_grouped, display_processes
-
-
-def setup_terminal():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-
-    tty.setcbreak(fd)
-    new_settings = termios.tcgetattr(fd)
-    new_settings[3] = new_settings[3] & ~termios.ECHO
-    termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
-
-    return old_settings
-
-
-def restore_terminal(old_settings):
-    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_settings)
 
 
 def get_key():
@@ -100,7 +82,7 @@ def main():
         )
 
         print(
-            "Commands (Press enter after writing command):\ng → toggle grouped mode\nk → kill process\nq → quit quitting\nm → sort by memory\nc → sort by cpu\n"
+            "Commands (Press enter after writing command):\ng → toggle grouped mode\nk → kill process\nq → quit application\nm → sort by memory\nc → sort by cpu\n"
         )
 
         print("Total memory: " + str(totalMem) + "MB\n")
@@ -114,8 +96,4 @@ def main():
 
 
 if __name__ == "__main__":
-    old_settings = setup_terminal()
-    try:
-        main()
-    finally:
-        restore_terminal(old_settings)
+    main()
